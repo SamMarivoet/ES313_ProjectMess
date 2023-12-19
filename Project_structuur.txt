@@ -1,0 +1,42 @@
+Mess
+	Stage 1 : binnenkomen
+		wachtrij
+	Stage 2 : plateau, bestek (L/R gekoppeld met Dagschotel L/R)
+		wachtrij
+		plateau, bestek, dessert, drank
+	Stage 3 : Main ingredient/dish
+		Dagschotel (L/R)
+			wachtrij
+		Saladbar
+			wachtrij
+		Pasta
+			wachtrij
+		Steak
+			wachtrij
+	Stage 4 : Side dish (L/R)
+		wachtrij
+		drank, soep, fruit, ... (L)
+	Stage 5 : Dessert/drank (L/R gekoppeld met Stage6 L/R)
+		wachtrij
+		Dessert - Fruitsap - koffie - glas
+	Stage 6 : Kassa (L/R)
+		wachtrij
+
+Onderzoeksdoel:
+	Huidige Bottlenecks
+		mogelijke oplossingen
+			betere spreiding binnenkomen leerlingen
+			extra kassa
+			shift/extra personeel
+			bordjes/'traffic management' → optimaal gebruik huidige faciliteiten (reële verdeling/kansen vs. ideale verdelingen)
+			lichtjes die aangeven wanneer iets(side dish) (bijna) op is
+	Extra
+		2e mess modeleren en beide simultaan simuleren en eveneens kijken of 'traffic management' (bv. adhv een bordje dat wachrij aangeeft) een significant verschil maakt
+	
+
+Functies
+Delayqueue{T}
+
+Verdediging keuzes:
+	Customers can't/won't leave queue, people will have decided whether or not to go to the mess before joining the queue
+	
