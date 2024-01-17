@@ -8,7 +8,6 @@ using Logging            # for debugging
 using Plots              # for figures
 using ConcurrentSim      # for DES
 using ResumableFunctions # for resumable functions
-using StatsPlots         # for nicer histograms
 using Statistics         # for statistics
 
 # import Base.show in order to use it for our own types
@@ -18,10 +17,10 @@ import Base.show
     #constante random flow gebaseerd op experimentele gegevens 
     #timings 1Ba 2Ba!!
     #een van de testen: spreiding client arrivals
-const arrivals = Dict("[1130-1200[" => Distributions.Exponential(25*60),
-                        "[1200-1230[" => Distributions.Exponential(1*60),
-                        "[1230-1300[" => Distributions.Exponential(10*60),
-                        "[1300-1330[" => Distributions.Exponential(2*60))
+const arrivals = Dict("[1130-1200[" => Distributions.Exponential(60),
+                        "[1200-1230[" => Distributions.Exponential(20),
+                        "[1230-1300[" => Distributions.Exponential(5),
+                        "[1300-1330[" => Distributions.Exponential(15))
 #distributions indicating how much time is required for every action 
    # (plateau en bestek nemen, hoofdgerecht nemen, groenten nemen, verplaatsing tussen stations...)
 # Arrival time function [s]
@@ -52,16 +51,14 @@ struct Mess #alle onderdelen van de mess in toevoegen
         queuelength = [(nowDatetime(env),0)]              
         # client waiting times
         waitingtimes = Array{Millisecond,1}()                   
-        return new(staff,queuelength,clients,waitingtimes,renegtimes)
+        return new(staff,queuelength,waitingtimes)
     end
 end
 
 mutable struct Client
-    id::Int
     proc::Process
     function Client(env::Environment,shop::Mess)
         client = new()
-        client.id = length(shop.clients) + 1
         # start the client process
         client.proc = @process clientbehavior(env, shop, client)
         return client
@@ -76,3 +73,5 @@ end
         c = Client(env,shop)
     end
 end
+
+DateTime(2013,7,1,12,30)

@@ -11,7 +11,6 @@ using Logging            # for debugging
 using Plots              # for figures
 using ConcurrentSim      # for DES
 using ResumableFunctions # for resumable functions
-using StatsPlots         # for nicer histograms
 using Statistics         # for statistics
 
 # import Base.show in order to use it for our own types
