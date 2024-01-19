@@ -9,22 +9,14 @@ using Plots              # for figures
 using ConcurrentSim      # for DES
 using ResumableFunctions # for resumable functions
 using Statistics         # for statistics
-using Dates
 
-@resumable function car(env::Environment)
-    while true
-      println("Start parking at ", now(env))
-      parking_duration = 5
-      @yield timeout(env, parking_duration)
-      println("Start driving at ", now(env))
-      trip_duration = 2
-      @yield timeout(env, trip_duration)
-    end
-  end
 sim = Simulation()
-@process car(sim)
-run(sim,10)
 
-rand(Distributions.Exponential(2*60))
+    tstart_data = floor(now(),Day)+(Hour(11) + Minute(30))
+    tstop_data  = Hour(13) + Minute(30)
+    daterange =  tstart_data : Minute(60) : tstop_data
+for element in daterange
+  println(element)
+end
 
-Dates.now()
+x1 = Array{DateTime,1}()

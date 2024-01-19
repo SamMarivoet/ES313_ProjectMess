@@ -3,5 +3,9 @@
     "zenMode.hideActivityBar": false,
     "zenMode.hideLineNumbers": false,
     "zenMode.hideStatusBar": false,
-    "zenMode.restore": false
+    "zenMode.restore": false,
+    "julia.NumThreads": 16,
+    "settingsSync.ignoredSettings": [
+        "-julia.NumThreads"
+    ],
 }

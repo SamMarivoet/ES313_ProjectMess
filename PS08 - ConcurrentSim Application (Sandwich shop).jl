@@ -309,7 +309,7 @@ function multisim(;n::Int=100, staff::Int=1,
     if plt
         #@info Nreneg, MWT, MQL
         fname = "multisim - $(n) iterations - $(staff) staff.png"
-        overviewplot(Nreneg, MWT, MQL, fname)
+        #overviewplot(Nreneg, MWT, MQL, fname)
     end
 
     return Nreneg, MWT, MQL

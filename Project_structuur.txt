@@ -40,3 +40,4 @@ Delayqueue{T}
 Verdediging keuzes:
 	Customers can't/won't leave queue, people will have decided whether or not to go to the mess before joining the queue
 	
+'lepels als resource definiëren → bepaald aantal mensen kan maar opscheppen'
