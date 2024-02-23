@@ -9,14 +9,7 @@ using Plots              # for figures
 using ConcurrentSim      # for DES
 using ResumableFunctions # for resumable functions
 using Statistics         # for statistics
-
-sim = Simulation()
-
-    tstart_data = floor(now(),Day)+(Hour(11) + Minute(30))
-    tstop_data  = Hour(13) + Minute(30)
-    daterange =  tstart_data : Minute(60) : tstop_data
-for element in daterange
-  println(element)
+for i = (1:
+  10)
+  println(i)
 end
-
-x1 = Array{DateTime,1}()

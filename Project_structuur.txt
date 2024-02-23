@@ -41,3 +41,16 @@ Verdediging keuzes:
 	Customers can't/won't leave queue, people will have decided whether or not to go to the mess before joining the queue
 	
 'lepels als resource definiëren → bepaald aantal mensen kan maar opscheppen'
+
+TO DO 
+	- choices als functie met kansen (correlatie statistiek)
+		ook vegi, ...
+	- side dish als containers
+	- mess vervolledigen
+		- waterdispenser integreren
+		- soep, drank etc 
+		- koffie, dessert, fruitsap appart ook als containers
+	- travel time van station naar station
+	- travel time voor staff (stel 1 staff: die kan niet teleporteren van main naar kassa)
+	- bijvullen van de sides (nodig: staff, stock)
+	- parameters aanpasbaar maken → ifv van de menu resultaat krijgen

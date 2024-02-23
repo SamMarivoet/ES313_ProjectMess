@@ -52,103 +52,155 @@ const Choprob = Distributions.Categorical([1])
 const Paths = Dict(Choices[1]=>[1,1,1,0,0,0])
 
 mutable struct Mess
-    staff::Resource
+    #crew
+        staff::Resource
+    #Containers
+        Main1_1::Container
+        Main1_2::Container
+        Main1_3::Container
+        Main1_4::Container
+        Main2_1::Container
+        Main2_2::Container
+        Main2_3::Container
+        Main2_4::Container
+        Side1::Container
+        Side2::Container
+        Side3::Container
+        Side4::Container
+        Side5::Container
+        Side6::Container
+        Side7::Container
+        Side8::Container
+        Side9::Container
+        Side10::Container
+        Side11::Container
+        Side12::Container
+        Fries1::Container
+        Fries2::Container
     #queues 
-    queue_Utensils1::Resource
-    queue_Utensils2::Resource
-    queue_Main1::Resource
-    queue_Main2::Resource
-    queue_Side1::Resource
-    queue_Side2::Resource
-    queue_Des1::Resource
-    queue_Des2::Resource
-    queue_Pasta::Resource
-    queue_Salad::Resource
-    queue_Steak::Resource
-    queue_Cash1::Resource
-    queue_Cash2::Resource
+        queue_Utensils1::Resource
+        queue_Utensils2::Resource
+        queue_Main1::Resource
+        queue_Main2::Resource
+        queue_Side1::Resource
+        queue_Side2::Resource
+        queue_Des1::Resource
+        queue_Des2::Resource
+        queue_Pasta::Resource
+        queue_Salad::Resource
+        queue_Steak::Resource
+        queue_Cash1::Resource
+        queue_Cash2::Resource
     #queuelengths
-    queuelength_Entrance::Array{Tuple{DateTime,Int64},1}
-    queuelength_Utensils1::Array{Tuple{DateTime,Int64},1}
-    queuelength_Utensils2::Array{Tuple{DateTime,Int64},1}
-    queuelength_Main1::Array{Tuple{DateTime,Int64},1}
-    queuelength_Main2::Array{Tuple{DateTime,Int64},1}
-    queuelength_Side1::Array{Tuple{DateTime,Int64},1}
-    queuelength_Side2::Array{Tuple{DateTime,Int64},1}
-    queuelength_Des1::Array{Tuple{DateTime,Int64},1}
-    queuelength_Des2::Array{Tuple{DateTime,Int64},1}
-    queuelength_Pasta::Array{Tuple{DateTime,Int64},1}
-    queuelength_Salad::Array{Tuple{DateTime,Int64},1}
-    queuelength_Steak::Array{Tuple{DateTime,Int64},1}
-    queuelength_Cash1::Array{Tuple{DateTime,Int64},1}
-    queuelength_Cash2::Array{Tuple{DateTime,Int64},1}
+        queuelength_Entrance::Array{Tuple{DateTime,Int64},1}
+        queuelength_Utensils1::Array{Tuple{DateTime,Int64},1}
+        queuelength_Utensils2::Array{Tuple{DateTime,Int64},1}
+        queuelength_Main1::Array{Tuple{DateTime,Int64},1}
+        queuelength_Main2::Array{Tuple{DateTime,Int64},1}
+        queuelength_Side1::Array{Tuple{DateTime,Int64},1}
+        queuelength_Side2::Array{Tuple{DateTime,Int64},1}
+        queuelength_Des1::Array{Tuple{DateTime,Int64},1}
+        queuelength_Des2::Array{Tuple{DateTime,Int64},1}
+        queuelength_Pasta::Array{Tuple{DateTime,Int64},1}
+        queuelength_Salad::Array{Tuple{DateTime,Int64},1}
+        queuelength_Steak::Array{Tuple{DateTime,Int64},1}
+        queuelength_Cash1::Array{Tuple{DateTime,Int64},1}
+        queuelength_Cash2::Array{Tuple{DateTime,Int64},1}
     #queuetimes (begin to end of queue)
-    queuetime_Entrance::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Utensils1::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Utensils2::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Main1::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Main2::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Side1::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Side2::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Des1::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Des2::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Pasta::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Salad::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Steak::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Cash1::Array{Tuple{DateTime,Millisecond},1}
-    queuetime_Cash2::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Entrance::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Utensils1::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Utensils2::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Main1::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Main2::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Side1::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Side2::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Des1::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Des2::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Pasta::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Salad::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Steak::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Cash1::Array{Tuple{DateTime,Millisecond},1}
+        queuetime_Cash2::Array{Tuple{DateTime,Millisecond},1}
     #clientcounter
-    clientcounter::Int64
+        clientcounter::Int64
     function Mess(env::Environment, nstaff::Int=6)
-        # add the crew
-        staff = Resource(env,nstaff)
+        #add the crew
+            staff = Resource(env,nstaff)
+        #Containers
+            Main1_1=Container(env,30,30)
+            Main1_2=Container(env,30,30)
+            Main1_3=Container(env,30,30)
+            Main1_4=Container(env,30,30)
+            Main2_1=Container(env,30,30)
+            Main2_2=Container(env,30,30)
+            Main2_3=Container(env,30,30)
+            Main2_4=Container(env,30,30)
+            Side1=Container(env,30,30)
+            Side2=Container(env,30,30)
+            Side3=Container(env,30,30)
+            Side4=Container(env,30,30)
+            Side5=Container(env,30,30)
+            Side6=Container(env,30,30)
+            Side7=Container(env,30,30)
+            Side8=Container(env,30,30)
+            Side9=Container(env,30,30)
+            Side10=Container(env,30,30)
+            Side11=Container(env,30,30)
+            Side12=Container(env,30,30)
+            Fries1=Container(env,15,15)
+            Fries2=Container(env,15,15)
         #add queues
-        queue_Utensils1 = Resource(env,3)
-        queue_Utensils2 = Resource(env,3)
-        queue_Main1 = Resource(env,4)
-        queue_Main2 = Resource(env,4)
-        queue_Side1 = Resource(env,8)
-        queue_Side2 = Resource(env,8)
-        queue_Des1 = Resource(env,2)
-        queue_Des2 = Resource(env,2)
-        queue_Pasta = Resource(env)
-        queue_Salad = Resource(env)
-        queue_Steak = Resource(env)
-        queue_Cash1 = Resource(env,5)
-        queue_Cash2 = Resource(env,5)
-        # no queue at the start of the simulation       
-        queuelength_Entrance = [(nowDatetime(env),0)]
-        queuelength_Utensils1 = [(nowDatetime(env),0)]
-        queuelength_Utensils2 = [(nowDatetime(env),0)]
-        queuelength_Main1 = [(nowDatetime(env),0)]
-        queuelength_Main2 = [(nowDatetime(env),0)]
-        queuelength_Side1 = [(nowDatetime(env),0)]
-        queuelength_Side2 = [(nowDatetime(env),0)]
-        queuelength_Des1 = [(nowDatetime(env),0)]
-        queuelength_Des2 = [(nowDatetime(env),0)]
-        queuelength_Pasta = [(nowDatetime(env),0)]
-        queuelength_Salad = [(nowDatetime(env),0)]
-        queuelength_Steak = [(nowDatetime(env),0)]
-        queuelength_Cash1 = [(nowDatetime(env),0)]
-        queuelength_Cash2 = [(nowDatetime(env),0)]              
-        # client waiting times
-        queuetime_Entrance = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Utensils1 = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Utensils2 = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Main1 = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Main2 = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Side1 = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Side2 = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Des1 = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Des2 = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Pasta = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Salad = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Steak = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Cash1 = [(nowDatetime(env),Millisecond(0))]
-        queuetime_Cash2 = [(nowDatetime(env),Millisecond(0))]
+            queue_Utensils1 = Resource(env,3)
+            queue_Utensils2 = Resource(env,3)
+            queue_Main1 = Resource(env,4)
+            queue_Main2 = Resource(env,4)
+            queue_Side1 = Resource(env,8)
+            queue_Side2 = Resource(env,8)
+            queue_Des1 = Resource(env,2)
+            queue_Des2 = Resource(env,2)
+            queue_Pasta = Resource(env)
+            queue_Salad = Resource(env)
+            queue_Steak = Resource(env)
+            queue_Cash1 = Resource(env,5)
+            queue_Cash2 = Resource(env,5)
+        #no queue at the start of the simulation       
+            queuelength_Entrance = [(nowDatetime(env),0)]
+            queuelength_Utensils1 = [(nowDatetime(env),0)]
+            queuelength_Utensils2 = [(nowDatetime(env),0)]
+            queuelength_Main1 = [(nowDatetime(env),0)]
+            queuelength_Main2 = [(nowDatetime(env),0)]
+            queuelength_Side1 = [(nowDatetime(env),0)]
+            queuelength_Side2 = [(nowDatetime(env),0)]
+            queuelength_Des1 = [(nowDatetime(env),0)]
+            queuelength_Des2 = [(nowDatetime(env),0)]
+            queuelength_Pasta = [(nowDatetime(env),0)]
+            queuelength_Salad = [(nowDatetime(env),0)]
+            queuelength_Steak = [(nowDatetime(env),0)]
+            queuelength_Cash1 = [(nowDatetime(env),0)]
+            queuelength_Cash2 = [(nowDatetime(env),0)]              
+        #client waiting times
+            queuetime_Entrance = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Utensils1 = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Utensils2 = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Main1 = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Main2 = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Side1 = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Side2 = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Des1 = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Des2 = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Pasta = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Salad = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Steak = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Cash1 = [(nowDatetime(env),Millisecond(0))]
+            queuetime_Cash2 = [(nowDatetime(env),Millisecond(0))]
         #clientcounter starts at 0
-        clientcounter = 0                    
-        return new(staff,queue_Utensils1,queue_Utensils2,queue_Main1,queue_Main2,queue_Side1,queue_Side2,queue_Des1,queue_Des2,queue_Pasta,queue_Salad,queue_Steak,queue_Cash1,queue_Cash2,queuelength_Entrance,queuelength_Utensils1,queuelength_Utensils2,queuelength_Main1,queuelength_Main2,queuelength_Side1,queuelength_Side2,queuelength_Des1,queuelength_Des2,queuelength_Pasta,queuelength_Salad,queuelength_Steak,queuelength_Cash1,queuelength_Cash2,queuetime_Entrance,queuetime_Utensils1,queuetime_Utensils2,queuetime_Main1,queuetime_Main2,queuetime_Side1,queuetime_Side2,queuetime_Des1,queuetime_Des2,queuetime_Pasta,queuetime_Salad,queuetime_Steak,queuetime_Cash1,queuetime_Cash2,clientcounter)
+            clientcounter = 0                    
+        return new(staff,
+            Main1_1,Main1_2,Main1_3,Main1_4,Main2_1,Main2_2,Main2_3,Main2_4,Side1,Side2,Side3,Side4,Side5,Side6,Side7,Side8,Side9,Side10,Side11,Side12,Fries1,Fries2,
+            queue_Utensils1,queue_Utensils2,queue_Main1,queue_Main2,queue_Side1,queue_Side2,queue_Des1,queue_Des2,queue_Pasta,queue_Salad,queue_Steak,queue_Cash1,queue_Cash2,
+            queuelength_Entrance,queuelength_Utensils1,queuelength_Utensils2,queuelength_Main1,queuelength_Main2,queuelength_Side1,queuelength_Side2,queuelength_Des1,queuelength_Des2,queuelength_Pasta,queuelength_Salad,queuelength_Steak,queuelength_Cash1,queuelength_Cash2,
+            queuetime_Entrance,queuetime_Utensils1,queuetime_Utensils2,queuetime_Main1,queuetime_Main2,queuetime_Side1,queuetime_Side2,queuetime_Des1,queuetime_Des2,queuetime_Pasta,queuetime_Salad,queuetime_Steak,queuetime_Cash1,queuetime_Cash2,
+            clientcounter)
     end
 end
 
@@ -162,7 +214,7 @@ mutable struct Client
     end
 end
 
-# Generating function for clients.
+
 @resumable function clientgenerator(env::Environment, m::Mess)
     while true 
         if (hour(nowDatetime(env)) < 12) & (minute(nowDatetime(env)) < 30)
@@ -412,7 +464,7 @@ function multisim(;n::Int=100, staff::Int=6,
         end
     MWT = TotWTpmn./TotElpmn
     end
-# generate a nice illustration
+    # generate a nice illustration
     @info "Making Mean Waiting Time figure"
     p = plot(daterange, MWT[1,:]/1000, linetype=:steppost, label="MWT_Entrance")
         plot!(daterange, MWT[2,:]/1000, linetype=:steppost, label="MWT_Utensils 1")
