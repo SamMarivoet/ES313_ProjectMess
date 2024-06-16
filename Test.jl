@@ -9,7 +9,4 @@ using Plots              # for figures
 using ConcurrentSim      # for DES
 using ResumableFunctions # for resumable functions
 using Statistics         # for statistics
-for i = (1:
-  10)
-  println(i)
-end
+
