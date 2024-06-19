@@ -54,3 +54,13 @@ TO DO
 	- travel time voor staff (stel 1 staff: die kan niet teleporteren van main naar kassa)
 	- bijvullen van de sides (nodig: staff, stock)
 	- parameters aanpasbaar maken → ifv van de menu resultaat krijgen
+
+
+Te testen
+	- pathing
+		- random (50/50) vs 'slim' (kortste rij) vs begeleid (van Side2→cash1/cash2; side1→cash1)
+	- Side volgorde
+	- 2 vs 3 kassa's 
+	- vanaf welke grootte impuls wachttijden te groot 
+	- Position deserts
+	!channel times aftrekken bij evaluatie
