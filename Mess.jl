@@ -12,7 +12,7 @@ using Pkg
 
 #Parameters for simulation
     const Kaasprob = 6/35           #kans op moeten rondlopen voor kaas
-    const LRprob = [0.5 0.5 0.5]    #kans op L(=1) @ Utensils Side Cash
+    const LRprob = [0.5 0.5 0.5 0.5]    #kans op L(=1) @ Utensils Side Cash Pasta
     const Des12prob = Distributions.Categorical([0.5, 0.5])
 #Constants
     const arrivals = Dict("[1130-1200[" => Distributions.Exponential(30),
@@ -117,9 +117,12 @@ mutable struct Mess
         Q_Side2::Resource
         Q_Des1::Resource
         Q_Des2::Resource
-        Q_Pasta::Resource
-        Q_Saus::Resource
-        Q_Kaas::Resource
+        Q_Pasta1::Resource
+        Q_Pasta2::Resource
+        Q_Saus1::Resource
+        Q_Saus2::Resource
+        Q_Kaas1::Resource
+        Q_Kaas2::Resource
         Q_Cha_PastaDes::Resource
         Q_Cha_SideDes1::Resource
         Q_Cha_SideDes2::Resource
@@ -139,16 +142,19 @@ mutable struct Mess
         Qlength_Side2::Array{Tuple{DateTime,Int64},1}
         Qlength_Des1::Array{Tuple{DateTime,Int64},1}
         Qlength_Des2::Array{Tuple{DateTime,Int64},1}
-        Qlength_Pasta::Array{Tuple{DateTime,Int64},1}
-        Qlength_Saus::Array{Tuple{DateTime,Int64},1}
-        Qlength_Kaas::Array{Tuple{DateTime,Int64},1}
+        Qlength_Pasta1::Array{Tuple{DateTime,Int64},1}
+        Qlength_Pasta2::Array{Tuple{DateTime,Int64},1}
+        Qlength_Saus1::Array{Tuple{DateTime,Int64},1}
+        Qlength_Saus2::Array{Tuple{DateTime,Int64},1}
+        Qlength_Kaas1::Array{Tuple{DateTime,Int64},1}
+        Qlength_Kaas2::Array{Tuple{DateTime,Int64},1}
         Qlength_Salad::Array{Tuple{DateTime,Int64},1}
         Qlength_Steak::Array{Tuple{DateTime,Int64},1}
         Qlength_Glas1::Array{Tuple{DateTime,Int64},1}
         Qlength_Glas2::Array{Tuple{DateTime,Int64},1}
         Qlength_Cash1::Array{Tuple{DateTime,Int64},1}
         Qlength_Cash2::Array{Tuple{DateTime,Int64},1}
-    #queuetimes (begin to end of queue)
+    #queuetimes (from requesting a place in a queue/service to getting it)
         Qtime_Entrance::Array{Tuple{DateTime,Millisecond},1}
         Qtime_Utensils1::Array{Tuple{DateTime,Millisecond},1}
         Qtime_Utensils2::Array{Tuple{DateTime,Millisecond},1}
@@ -158,9 +164,12 @@ mutable struct Mess
         Qtime_Side2::Array{Tuple{DateTime,Millisecond},1}
         Qtime_Des1::Array{Tuple{DateTime,Millisecond},1}
         Qtime_Des2::Array{Tuple{DateTime,Millisecond},1}
-        Qtime_Pasta::Array{Tuple{DateTime,Millisecond},1}
-        Qtime_Saus::Array{Tuple{DateTime,Millisecond},1}
-        Qtime_Kaas::Array{Tuple{DateTime,Millisecond},1}
+        Qtime_Pasta1::Array{Tuple{DateTime,Millisecond},1}
+        Qtime_Pasta2::Array{Tuple{DateTime,Millisecond},1}
+        Qtime_Saus1::Array{Tuple{DateTime,Millisecond},1}
+        Qtime_Saus2::Array{Tuple{DateTime,Millisecond},1}
+        Qtime_Kaas1::Array{Tuple{DateTime,Millisecond},1}
+        Qtime_Kaas2::Array{Tuple{DateTime,Millisecond},1}
         Qtime_Salad::Array{Tuple{DateTime,Millisecond},1}
         Qtime_Steak::Array{Tuple{DateTime,Millisecond},1}
         Qtime_Glas1::Array{Tuple{DateTime,Millisecond},1}
@@ -206,9 +215,12 @@ mutable struct Mess
             Q_Side2 = Resource(env,8)
             Q_Des1 = Resource(env,2)
             Q_Des2 = Resource(env,2)
-            Q_Pasta = Resource(env,2)
-            Q_Saus = Resource(env,2)
-            Q_Kaas = Resource(env,2)
+            Q_Pasta1 = Resource(env,2)
+            Q_Pasta2 = Resource(env,2)
+            Q_Saus1 = Resource(env,2)
+            Q_Saus2 = Resource(env,2)
+            Q_Kaas1 = Resource(env,2)
+            Q_Kaas2 = Resource(env,2)
             Q_Cha_PastaDes = Resource(env,5)
             Q_Cha_SideDes1 = Resource(env,3)
             Q_Cha_SideDes2 = Resource(env,3)
@@ -218,7 +230,7 @@ mutable struct Mess
             Q_Glas2 = Resource(env,4)
             Q_Cash1 = Resource(env,nkassa-1)
             Q_Cash2 = Resource(env,1)
-        #no queue at the start of the simulation       
+        #initiate queuelengths 
             Qlength_Entrance = [(nowDatetime(env),0)]
             Qlength_Utensils1 = [(nowDatetime(env),0)]
             Qlength_Utensils2 = [(nowDatetime(env),0)]
@@ -228,16 +240,19 @@ mutable struct Mess
             Qlength_Side2 = [(nowDatetime(env),0)]
             Qlength_Des1 = [(nowDatetime(env),0)]
             Qlength_Des2 = [(nowDatetime(env),0)]
-            Qlength_Pasta = [(nowDatetime(env),0)]
-            Qlength_Saus = [(nowDatetime(env),0)]
-            Qlength_Kaas = [(nowDatetime(env),0)]
+            Qlength_Pasta1 = [(nowDatetime(env),0)]
+            Qlength_Pasta2 = [(nowDatetime(env),0)]
+            Qlength_Saus1 = [(nowDatetime(env),0)]
+            Qlength_Saus2 = [(nowDatetime(env),0)]
+            Qlength_Kaas1 = [(nowDatetime(env),0)]
+            Qlength_Kaas2 = [(nowDatetime(env),0)]
             Qlength_Salad = [(nowDatetime(env),0)]
             Qlength_Steak = [(nowDatetime(env),0)]
             Qlength_Glas1 = [(nowDatetime(env),0)]
             Qlength_Glas2 = [(nowDatetime(env),0)]
             Qlength_Cash1 = [(nowDatetime(env),0)]
             Qlength_Cash2 = [(nowDatetime(env),0)]              
-        #client waiting times
+        #initiate queuetimes
             Qtime_Entrance = [(nowDatetime(env),Millisecond(0))]
             Qtime_Utensils1 = [(nowDatetime(env),Millisecond(0))]
             Qtime_Utensils2 = [(nowDatetime(env),Millisecond(0))]
@@ -247,9 +262,12 @@ mutable struct Mess
             Qtime_Side2 = [(nowDatetime(env),Millisecond(0))]
             Qtime_Des1 = [(nowDatetime(env),Millisecond(0))]
             Qtime_Des2 = [(nowDatetime(env),Millisecond(0))]
-            Qtime_Pasta = [(nowDatetime(env),Millisecond(0))]
-            Qtime_Saus = [(nowDatetime(env),Millisecond(0))]
-            Qtime_Kaas = [(nowDatetime(env),Millisecond(0))]
+            Qtime_Pasta1 = [(nowDatetime(env),Millisecond(0))]
+            Qtime_Pasta2 = [(nowDatetime(env),Millisecond(0))]
+            Qtime_Saus1 = [(nowDatetime(env),Millisecond(0))]
+            Qtime_Saus2 = [(nowDatetime(env),Millisecond(0))]
+            Qtime_Kaas1 = [(nowDatetime(env),Millisecond(0))]
+            Qtime_Kaas2 = [(nowDatetime(env),Millisecond(0))]
             Qtime_Salad = [(nowDatetime(env),Millisecond(0))]
             Qtime_Steak = [(nowDatetime(env),Millisecond(0))]
             Qtime_Glas1 = [(nowDatetime(env),Millisecond(0))]
@@ -260,9 +278,9 @@ mutable struct Mess
             clientcounter = 0                    
         return new(staff,
             Main1_1,Main1_2,Main1_3,Main1_4,Main2_1,Main2_2,Main2_3,Main2_4,Side1,Side2,Side3,Side4,Side5,Side6,Side7,Side8,Side9,Side10,Side11,Side12,Fries1,Fries2,
-            Q_Utensils1,Q_Utensils2,Q_Main1,Q_Main2,Q_Cha_Main1Side,Q_Cha_Main2Side,Q_Side1,Q_Side2,Q_Des1,Q_Des2,Q_Pasta,Q_Saus,Q_Kaas,Q_Cha_PastaDes,Q_Cha_SideDes1,Q_Cha_SideDes2,Q_Salad,Q_Steak,Q_Glas1,Q_Glas2,Q_Cash1,Q_Cash2,
-            Qlength_Entrance,Qlength_Utensils1,Qlength_Utensils2,Qlength_Main1,Qlength_Main2,Qlength_Side1,Qlength_Side2,Qlength_Des1,Qlength_Des2,Qlength_Pasta,Qlength_Saus,Qlength_Kaas,Qlength_Salad,Qlength_Steak,Qlength_Glas1,Qlength_Glas2,Qlength_Cash1,Qlength_Cash2,
-            Qtime_Entrance,Qtime_Utensils1,Qtime_Utensils2,Qtime_Main1,Qtime_Main2,Qtime_Side1,Qtime_Side2,Qtime_Des1,Qtime_Des2,Qtime_Pasta,Qtime_Saus,Qtime_Kaas,Qtime_Salad,Qtime_Steak,Qtime_Glas1,Qtime_Glas2,Qtime_Cash1,Qtime_Cash2,
+            Q_Utensils1,Q_Utensils2,Q_Main1,Q_Main2,Q_Cha_Main1Side,Q_Cha_Main2Side,Q_Side1,Q_Side2,Q_Des1,Q_Des2,Q_Pasta1,Q_Pasta2,Q_Saus1,Q_Saus2,Q_Kaas1,Q_Kaas2,Q_Cha_PastaDes,Q_Cha_SideDes1,Q_Cha_SideDes2,Q_Salad,Q_Steak,Q_Glas1,Q_Glas2,Q_Cash1,Q_Cash2,
+            Qlength_Entrance,Qlength_Utensils1,Qlength_Utensils2,Qlength_Main1,Qlength_Main2,Qlength_Side1,Qlength_Side2,Qlength_Des1,Qlength_Des2,Qlength_Pasta1,Qlength_Pasta2,Qlength_Saus1,Qlength_Saus2,Qlength_Kaas1,Qlength_Kaas2,Qlength_Salad,Qlength_Steak,Qlength_Glas1,Qlength_Glas2,Qlength_Cash1,Qlength_Cash2,
+            Qtime_Entrance,Qtime_Utensils1,Qtime_Utensils2,Qtime_Main1,Qtime_Main2,Qtime_Side1,Qtime_Side2,Qtime_Des1,Qtime_Des2,Qtime_Pasta1,Qtime_Pasta2,Qtime_Saus1,Qtime_Saus2,Qtime_Kaas1,Qtime_Kaas2,Qtime_Salad,Qtime_Steak,Qtime_Glas1,Qtime_Glas2,Qtime_Cash1,Qtime_Cash2,
             clientcounter)
     end
 end
@@ -270,19 +288,18 @@ end
 mutable struct Client
     kant::Int
     proc::Process
-    function Client(env::Environment,m::Mess; mode::Int=1)
-        if mode < 0 || mode >2
+    mode::Int
+    function Client(env::Environment,m::Mess; modus::Int=1)
+        if modus < 0 || modus >2
             error("client mode should be 0,1 or2")
         end
         client = new()
-        # start the client process
-        client.mode = mode #0→LRProb 1→kortste 2→kortste+begeleiding
+        client.mode = modus #0→LRProb 1→kortste 2→kortste+begeleiding
         client.kant = 1
-        client.proc = @process clientbehavior(env, m)
+        client.proc = @process clientbehavior(env, m, client)
         return client
     end
 end
-
 
 @resumable function clientgenerator(env::Environment, m::Mess; mode::Int=0, impuls::Int=80)
     if mode == 0
@@ -311,7 +328,7 @@ end
     end
 end
 
-@resumable function clientbehavior(env::Environment, m::Mess)
+@resumable function clientbehavior(env::Environment, m::Mess, client::Client)
     #keuze
         choice = Choices[rand(Choprob)]
         path = Paths[choice]
@@ -408,61 +425,146 @@ end
                     @yield timeout(env, Millisecond(2000))
                 @yield request(m.Q_Des1)
                     @yield release(m.Q_Cha_SideDes1)
-            else 
+            elseif client.mode == 2 && client.kant == 2 && length(m.Q_Des1.put_queue) <= length(m.Q_Des2.put_queue)
+                @yield request(m.Q_Cha_SideDes1)
+                    @yield release(m.Q_Side2)
+                    client.kant = 1
+                    @yield timeout(env, Millisecond(2500))
+                @yield request(m.Q_Des1)
+                    @yield release(m.Q_Cha_SideDes1)
+            else
+                @yield request(m.Q_Cha_SideDes2)
+                if client.kant == 2
+                    @yield release(m.Q_Side2)
+                else
+                    @yield release(m.Q_Side1)
+                    client.kant = 2
+                end
+                    @yield timeout(env, Millisecond(2000))
+                @yield request(m.Q_Des2)
+                    @yield release(m.Q_Cha_SideDes2) 
             end
     #Pasta + Des_start
         elseif path[4] == 1
-            @yield release(m.Q_Utensils1)
-            @yield request(m.Q_Pasta)
-                push!(m.Qtime_Pasta, (nowDatetime(env),nowDatetime(env)-tin))
-                push!(m.Qlength_Pasta, (nowDatetime(env), length(m.Q_Pasta.put_queue)))
-                @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Pasta"]),Min["Pasta"],Max["Pasta"])*10^3)))
-            tin = nowDatetime(env)
-            @yield request(m.Q_Saus)
-            @yield release(m.Q_Pasta)    
-                push!(m.Qtime_Saus, (nowDatetime(env),nowDatetime(env)-tin))
-                push!(m.Qlength_Saus, (nowDatetime(env), length(m.Q_Saus.put_queue)))
-                @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Saus"]),Min["Saus"],Max["Saus"])*10^3)))
-            tin = nowDatetime(env)
-            @yield request(m.Q_Kaas)
-            @yield release(m.Q_Saus)
-                push!(m.Qtime_Kaas, (nowDatetime(env),nowDatetime(env)-tin))
-                push!(m.Qlength_Kaas, (nowDatetime(env), length(m.Q_Kaas.put_queue)))
-                if rand() > Kaasprob
-                    @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Kaas1"]),Min["Kaas1"],Max["Kaas1"])*10^3)))
-                else
-                    @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Kaas2"]),Min["Kaas2"],Max["Kaas2"])*10^3)))
-                end
-            tin = nowDatetime(env)
+            if client.kant == 1
+                @yield release(m.Q_Utensils1)
+            else 
+                @yield release(m.Q_Utensils2)
+            end
+        #Pasta + Saus + Kaas
+            if (client.mode == 0 && rand()<LRprob[4]) || (client.mode == 1 && length(m.Q_Pasta1.put_queue) <= length(m.Q_Des2.put_queue)) || (client.mode == 2 && client.kant == 1)
+                @yield request(m.Q_Pasta1)
+                    push!(m.Qtime_Pasta1, (nowDatetime(env),nowDatetime(env)-tin))
+                    push!(m.Qlength_Pasta1, (nowDatetime(env), length(m.Q_Pasta1.put_queue)))
+                    @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Pasta"]),Min["Pasta"],Max["Pasta"])*10^3)))
+                tin = nowDatetime(env)
+                @yield request(m.Q_Saus1)
+                    @yield release(m.Q_Pasta1)    
+                    push!(m.Qtime_Saus1, (nowDatetime(env),nowDatetime(env)-tin))
+                    push!(m.Qlength_Saus1, (nowDatetime(env), length(m.Q_Saus1.put_queue)))
+                    @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Saus"]),Min["Saus"],Max["Saus"])*10^3)))
+                tin = nowDatetime(env)
+                @yield request(m.Q_Kaas1)
+                    @yield release(m.Q_Saus1)
+                    push!(m.Qtime_Kaas1, (nowDatetime(env),nowDatetime(env)-tin))
+                    push!(m.Qlength_Kaas1, (nowDatetime(env), length(m.Q_Kaas1.put_queue)))
+                    if rand() > Kaasprob
+                        @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Kaas1"]),Min["Kaas1"],Max["Kaas1"])*10^3)))
+                    else
+                        @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Kaas2"]),Min["Kaas2"],Max["Kaas2"])*10^3)))
+                    end
+                tin = nowDatetime(env)
                 @yield request(m.Q_Cha_PastaDes)
-                @yield release(m.Q_Kaas)
+                    @yield release(m.Q_Kaas1)
+            else
+                @yield request(m.Q_Pasta2)
+                    push!(m.Qtime_Pasta2, (nowDatetime(env),nowDatetime(env)-tin))
+                    push!(m.Qlength_Pasta2, (nowDatetime(env), length(m.Q_Pasta2.put_queue)))
+                    @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Pasta"]),Min["Pasta"],Max["Pasta"])*10^3)))
+                tin = nowDatetime(env)
+                @yield request(m.Q_Saus2)
+                    @yield release(m.Q_Pasta2)    
+                    push!(m.Qtime_Saus2, (nowDatetime(env),nowDatetime(env)-tin))
+                    push!(m.Qlength_Saus2, (nowDatetime(env), length(m.Q_Saus2.put_queue)))
+                    @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Saus"]),Min["Saus"],Max["Saus"])*10^3)))
+                tin = nowDatetime(env)
+                @yield request(m.Q_Kaas2)
+                    @yield release(m.Q_Saus2)
+                    push!(m.Qtime_Kaas2, (nowDatetime(env),nowDatetime(env)-tin))
+                    push!(m.Qlength_Kaas2, (nowDatetime(env), length(m.Q_Kaas2.put_queue)))
+                    if rand() > Kaasprob
+                        @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Kaas1"]),Min["Kaas1"],Max["Kaas1"])*10^3)))
+                    else
+                        @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Kaas2"]),Min["Kaas2"],Max["Kaas2"])*10^3)))
+                    end
+                tin = nowDatetime(env)
+                @yield request(m.Q_Cha_PastaDes)
+                    @yield release(m.Q_Kaas2)
+            end
                 @yield timeout(env, Millisecond(4000))
+        #Des_start
+            if (client.mode == 0 && rand()<LRprob[3]) || (client.mode == 1 && length(m.Q_Des1.put_queue) <= length(m.Q_Des2.put_queue))
+                @yield request(m.Q_Cha_SideDes1)
+                    client.kant = 1
+                    @yield release(m.Q_Cha_PastaDes)
+                    @yield timeout(env, Millisecond(2000))
                 @yield request(m.Q_Des1)
-                @yield release(m.Q_Cha_PastaDes)
+                    @yield release(m.Q_Cha_SideDes1)
+            else
+                @yield request(m.Q_Cha_SideDes2)
+                    client.kant = 2
+                    @yield release(m.Q_Cha_PastaDes)
+                    @yield timeout(env, Millisecond(2000))
+                @yield request(m.Q_Des2)
+                    @yield release(m.Q_Cha_SideDes2) 
+            end
         end
     #Des_end
-        push!(m.Qtime_Des1, (nowDatetime(env),nowDatetime(env)-tin))
-        push!(m.Qlength_Des1, (nowDatetime(env), length(m.Q_Des1.put_queue)))
+        if client.kant == 1
+            push!(m.Qtime_Des1, (nowDatetime(env),nowDatetime(env)-tin))
+            push!(m.Qlength_Des1, (nowDatetime(env), length(m.Q_Des1.put_queue)))
+        else
+            push!(m.Qtime_Des2, (nowDatetime(env),nowDatetime(env)-tin))
+            push!(m.Qlength_Des2, (nowDatetime(env), length(m.Q_Des2.put_queue)))
+        end
         if Deschoice == 2
             @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Des"]),Min["Des"],Max["Des"])*10^3)))
         end
         tin = nowDatetime(env)
     #Glas
-        @yield request(m.Q_Glas1)
-        @yield release(m.Q_Des1)
-            push!(m.Qtime_Glas1, (nowDatetime(env),nowDatetime(env)-tin))
-            push!(m.Qlength_Glas1, (nowDatetime(env), length(m.Q_Glas1.put_queue)))
+        if client.kant == 1
+            @yield request(m.Q_Glas1)
+                @yield release(m.Q_Des1)
+                push!(m.Qtime_Glas1, (nowDatetime(env),nowDatetime(env)-tin))
+                push!(m.Qlength_Glas1, (nowDatetime(env), length(m.Q_Glas1.put_queue)))
+        else
+            @yield request(m.Q_Glas2)
+                @yield release(m.Q_Des2)
+                push!(m.Qtime_Glas2, (nowDatetime(env),nowDatetime(env)-tin))
+                push!(m.Qlength_Glas2, (nowDatetime(env), length(m.Q_Glas2.put_queue)))
+        end
             @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Glas"]),Min["Glas"],Max["Glas"])*10^3)))
         tin = nowDatetime(env)
     #Kassa
-        @yield request(m.Q_Cash1)
-        @yield release(m.Q_Glas1)
-            @yield request(m.staff)
-            push!(m.Qtime_Cash1, (nowDatetime(env),nowDatetime(env)-tin))
-            push!(m.Qlength_Cash1, (nowDatetime(env), length(m.Q_Cash1.put_queue)))
-            @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Cash"]),Min["Cash"],Max["Cash"])*10^3)))
-            @yield release(m.staff)
-        @yield release(m.Q_Cash1)
+        if client.kant == 1
+            @yield request(m.Q_Cash1)
+                @yield release(m.Q_Glas1)
+                @yield request(m.staff)
+                push!(m.Qtime_Cash1, (nowDatetime(env),nowDatetime(env)-tin))
+                push!(m.Qlength_Cash1, (nowDatetime(env), length(m.Q_Cash1.put_queue)))
+                @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Cash"]),Min["Cash"],Max["Cash"])*10^3)))
+                @yield release(m.staff)
+                @yield release(m.Q_Cash1)
+        else
+            @yield request(m.Q_Cash2)
+                @yield release(m.Q_Glas2)
+                @yield request(m.staff)
+                push!(m.Qtime_Cash2, (nowDatetime(env),nowDatetime(env)-tin))
+                push!(m.Qlength_Cash2, (nowDatetime(env), length(m.Q_Cash2.put_queue)))
+                @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Cash"]),Min["Cash"],Max["Cash"])*10^3)))
+                @yield release(m.staff)
+                @yield release(m.Q_Cash2)
+        end
 end
 
 function plotQlength(m::Mess)

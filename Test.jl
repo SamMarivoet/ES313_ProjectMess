@@ -10,14 +10,4 @@ using ConcurrentSim      # for DES
 using ResumableFunctions # for resumable functions
 using Statistics         # for statistics
 
-function t(a)
-  if (a < 10 && mod(a,2)==0) || (a < 5 && mod(a,2)!=0)
-    show("Feest")
-  else
-    show("Huts")
-  end
-end
-
-t(8)
-t(3)
-t(7)
+rand(Truncated(Normal(0,1),0.5,1))
