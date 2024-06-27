@@ -21,7 +21,6 @@ using Pkg
                         "[1300-1330[" => Distributions.Exponential(10))
     const Use = Dict("Utensils" => Distributions.Normal(5.9,2.1),
                     "Main" => Distributions.Gamma(8.83,0.92),
-                    "Side" => Distributions.Normal(4,3),
                     "Side_veg" => Distributions.Gamma(7.86,0.86),
                     "Side_carbs1" => Distributions.Gamma(18.29,0.37), #(26/59)
                     "Side_carbs2" => Distributions.Gamma(42.89,0.29), #(33/59)
@@ -56,13 +55,13 @@ using Pkg
                     "Des" => 11.2,
                     "Glas" => 5.7,
                     "Cash" => 23.2)
+    const Carbsprob = 26/59
     const Choices = ["Main_Side_Des_Cash","Pasta_optDes"]
     const Choprob = Distributions.Categorical([0.8344, 0.1656])
     const Des12 = [1,2]                         #1→des @ utensils; 2→des @ glas
     const Desprob = 0.0925                      #kans op desert indien geen main
     const Paths = Dict(Choices[1]=>[1,1,1,0],   # path = (Main,Side,Des,Pasta)
                         Choices[2]=>[0,0,1,1])
-# verplaatsing tussen stations
 
 function nextarrival(t::DateTime; arrivals::Dict=arrivals)
     if (hour(t) < 12) & (minute(t) >= 30)       #we starten de simulatie om 11:30
@@ -289,19 +288,19 @@ mutable struct Client
     kant::Int
     proc::Process
     mode::Int
-    function Client(env::Environment,m::Mess; modus::Int=1)
-        if modus < 0 || modus >2
-            error("client mode should be 0,1 or2")
+    function Client(env::Environment,m::Mess; mode::Int=1)
+        if mode < 0 || mode >2
+            error("client mode should be 0,1 or 2")
         end
         client = new()
-        client.mode = modus #0→LRProb 1→kortste 2→kortste+begeleiding
+        client.mode = mode #0→LRProb 1→kortste 2→kortste+begeleiding
         client.kant = 1
         client.proc = @process clientbehavior(env, m, client)
         return client
     end
 end
 
-@resumable function clientgenerator(env::Environment, m::Mess; mode::Int=0, impuls::Int=80)
+@resumable function clientgenerator(env::Environment, m::Mess; mode::Int=0, impuls::Int=80, clientmode::Int=1)
     if mode == 0
         while true 
             if (hour(nowDatetime(env)) < 12) & (minute(nowDatetime(env)) < 30)
@@ -321,9 +320,10 @@ end
             c = Client(env,m)
         end
     elseif mode == 1
+        @info "Simulation on impuls of $(impuls) clients on mode $(clientmode)"
         for _ = 1:impuls
             m.clientcounter += 1
-            c = Client(env,m)
+            c = Client(env,m,mode=clientmode)
         end
     end
 end
@@ -398,8 +398,6 @@ end
                 end
                     push!(m.Qtime_Side1, (nowDatetime(env),nowDatetime(env)-tin))
                     push!(m.Qlength_Side1, (nowDatetime(env), length(m.Q_Side1.put_queue)))
-                    @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Side"]),Min["Side"],Max["Side"])*10^3)))
-                
             else
                 @yield request(m.Q_Side2)
                 if client.kant == 2
@@ -410,7 +408,13 @@ end
                 end
                     push!(m.Qtime_Side2, (nowDatetime(env),nowDatetime(env)-tin))
                     push!(m.Qlength_Side2, (nowDatetime(env), length(m.Q_Side2.put_queue)))
-                    @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Side"]),Min["Side"],Max["Side"])*10^3)))
+            end
+            @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Side_veg"]),Min["Side_veg"],Max["Side_veg"])*10^3)))
+            @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Side_veg"]),Min["Side_veg"],Max["Side_veg"])*10^3)))
+            if rand() < Carbsprob
+                @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Side_carbs1"]),Min["Side_carbs"],Max["Side_carbs"])*10^3)))
+            else
+                @yield timeout(env, Millisecond(round(Int64,clamp(rand(Use["Side_carbs2"]),Min["Side_carbs"],Max["Side_carbs"])*10^3)))
             end
         #Des_start
             tin = nowDatetime(env)
@@ -567,83 +571,68 @@ end
         end
 end
 
-function plotQlength(m::Mess)
-    # some makeup
-    tstart = floor(m.Qlength_Entrance[1][1], Day) + Hour(11) + Minute(30)
-    tstop  = floor(m.Qlength_Entrance[1][1], Day) + Hour(13) + Minute(30)
-    daterange =  tstart : Minute(60) : tstop
-    datexticks = [Dates.value(mom) for mom in daterange]
-    datexticklabels = Dates.format.(daterange,"HH:MM")
-    # queue length
-    x1::Array{DateTime,1} = map(v -> v[1], m.Qlength_Entrance)
-    y1::Array{Int,1} = map(v -> v[2], m.Qlength_Entrance)
-    p = plot(x1, y1, linetype=:steppost, label="Queue length Entrance")
-    x2::Array{DateTime,1} = map(v -> v[1], m.Qlength_Utensils1)
-    y2::Array{Int,1} = map(v -> v[2], m.Qlength_Utensils1)
-    plot!(x2, y2, linetype=:steppost, label="Queue length Utensils 1")
-    x3::Array{DateTime,1} = map(v -> v[1], m.Qlength_Main1)
-    y3::Array{Int,1} = map(v -> v[2], m.Qlength_Main1)
-    plot!(x3, y3, linetype=:steppost, label="Queue length Main 1")
-    x4::Array{DateTime,1} = map(v -> v[1], m.Qlength_Side1)
-    y4::Array{Int,1} = map(v -> v[2], m.Qlength_Side1)
-    plot!(x4, y4, linetype=:steppost, label="Queue length Side 1")
-    x5::Array{DateTime,1} = map(v -> v[1], m.Qlength_Des1)
-    y5::Array{Int,1} = map(v -> v[2], m.Qlength_Des1)
-    plot!(x5, y5, linetype=:steppost, label="Queue length Des 1")
-    x6::Array{DateTime,1} = map(v -> v[1], m.Qlength_Cash1)
-    y6::Array{Int,1} = map(v -> v[2], m.Qlength_Cash1)
-    plot!(x6, y6, linetype=:steppost, label="Queue length Cash 1")
+function plotQL(Qdat::Vector{Tuple{DateTime,Int}}, label::String)
+    x = map(v -> v[1], Qdat)
+    y = map(v -> v[2], Qdat)
+    plot!(x, y, linestyle=:solid, label=label)
+end
 
-    xticks!(datexticks, datexticklabels,rotation=0)
-    xlims!(Dates.value(tstart),Dates.value(tstop))
-    ylims!(0,maximum([y2;y3;y4;y5;y6])+5)
-    yticks!(0:1:(maximum([y2;y3;y4;y5;y6]))+1)
-    
+function format_datetime_to_mmss(dt::DateTime)
+    return Dates.format(dt, "MM:SS")
+end
+
+function plotQlength(m::Mess)
+    p = plot()
+
+    plotQL(m.Qlength_Entrance, "Queue length Entrance")
+    plotQL(m.Qlength_Utensils1, "Queue length Utensils 1")
+    plotQL(m.Qlength_Main1, "Queue length Main 1")
+    plotQL(m.Qlength_Side1, "Queue length Side 1")
+    plotQL(m.Qlength_Des1, "Queue length Des 1")
+    plotQL(m.Qlength_Cash1, "Queue length Cash 1")
+
+    current_xticks = xticks(p)[1][1]
+    x_ticks_datetime = [Dates.unix2datetime(Int(round(x/1000))) for x in current_xticks]
+    formatted_xticks = [format_datetime_to_mmss(x_ticks_datetime[i]) for i in 1:length(current_xticks)]
+    xticks!(p, current_xticks, formatted_xticks)
+    xlabel!(p, "Time of the simulation in MM:SS")
+    ylabel!(p, "Length of the queue in # clients")
 
     savefig(p, "./Mess_Images/queuelength.png")
 end
 
-function plotQtime(m::Mess)
-    # some makeup
-    tstart = floor(m.Qtime_Entrance[1][1], Day) + Hour(11) + Minute(30)
-    tstop  = floor(m.Qtime_Entrance[1][1], Day) + Hour(13) + Minute(30)
-    daterange =  tstart : Minute(60) : tstop
-    datexticks = [Dates.value(mom) for mom in daterange]
-    datexticklabels = Dates.format.(daterange,"HH:MM")
-    # queue time
-    x1::Array{DateTime,1} = map(v -> v[1], m.Qtime_Entrance)
-    y1::Array{Int64,1} = map(v -> Dates.value(v[2]), m.Qtime_Entrance)
-    p = plot(x1, y1/1000, linetype=:steppost, label="Queue time Entrance")
-    x2::Array{DateTime,1} = map(v -> v[1], m.Qtime_Utensils1)
-    y2::Array{Int64,1} = map(v -> Dates.value(v[2]), m.Qtime_Utensils1)
-    plot!(x2, y2/1000, linetype=:steppost, label="Queue time Utensils 1")
-    x3::Array{DateTime,1} = map(v -> v[1], m.Qtime_Main1)
-    y3::Array{Int64,1} = map(v -> Dates.value(v[2]), m.Qtime_Main1)
-    plot!(x3, y3/1000, linetype=:steppost, label="Queue time Main 1")
-    x4::Array{DateTime,1} = map(v -> v[1], m.Qtime_Side1)
-    y4::Array{Int64,1} = map(v -> Dates.value(v[2]), m.Qtime_Side1)
-    plot!(x4, y4/1000, linetype=:steppost, label="Queue time Side 1")
-    x5::Array{DateTime,1} = map(v -> v[1], m.Qtime_Des1)
-    y5::Array{Int64,1} = map(v -> Dates.value(v[2]), m.Qtime_Des1)
-    plot!(x5, y5/1000, linetype=:steppost, label="Queue time Des 1")
-    x6::Array{DateTime,1} = map(v -> v[1], m.Qtime_Cash1)
-    y6::Array{Int64,1} = map(v -> Dates.value(v[2]), m.Qtime_Cash1)
-    plot!(x6, y6/1000, linetype=:steppost, label="Queue time Cash 1")
+function plotQT(Qdat::Vector{Tuple{DateTime,Millisecond}}, label::String)
+    x = map(v -> v[1], Qdat)
+    y = map(v -> v[2]/Second(1), Qdat)
+    plot!(x, y, linestyle=:solid, label=label, legend=:right)
+end
 
-    xticks!(datexticks, datexticklabels,rotation=0)
-    xlims!(Dates.value(tstart),Dates.value(tstop))
-    ylims!(0,maximum([y2;y3;y4;y5;y6])/1000+5)
-    yticks!(0:1:(maximum([y2;y3;y4;y5;y6]))/1000+1)
-    
+function plotQtime(m::Mess)
+    p = plot(size=(800,400),margin=5Plots.mm)
+
+    plotQT(m.Qtime_Entrance, "Queue time Entrance")
+    plotQT(m.Qtime_Utensils1, "Queue time Utensils 1")
+    plotQT(m.Qtime_Main1, "Queue time Main 1")
+    plotQT(m.Qtime_Side1, "Queue time Side 1")
+    plotQT(m.Qtime_Des1, "Queue time Des 1")
+    plotQT(m.Qtime_Cash1, "Queue time Cash 1")
+
+    current_xticks = xticks(p)[1][1]
+    x_ticks_datetime = [Dates.unix2datetime(Int(round(x/1000))) for x in current_xticks]
+    formatted_xticks = [format_datetime_to_mmss(x_ticks_datetime[i]) for i in 1:length(current_xticks)]
+    xticks!(p, current_xticks, formatted_xticks)
+    xlabel!(p, "Time of the simulation in MM:SS")
+    ylabel!(p, "Queue time in seconds")
+    plot!(p, legend=:outerright)
 
     savefig(p, "./Mess_Images/queuetime.png")
 end
 
-function runsim()
-    @info "$("-"^20)\nStarting a complete simulation\n$("-"^20)"
+function runsim(;nstaff::Int=6,nkassa::Int=2,genmode::Int=1,clientmode::Int=1)
+    @info "$("-"^20)\nStarting a complete simulation\n$("-"^26)"
     sim = Simulation(floor(Dates.now(),Day))
-    m = Mess(sim, 5, nkassa=3)
-    @process clientgenerator(sim, m, mode=1)
+    m = Mess(sim, nstaff, nkassa=nkassa)
+    @process clientgenerator(sim, m, mode=genmode, clientmode = clientmode)
     # Run the sim for one day
     run(sim, floor(Dates.now(),Day) + Day(1))
     # Illustrations
@@ -653,7 +642,7 @@ function runsim()
     plotQtime(m)
 end
 
-runsim()
+runsim(nkassa=3)
 
 function multisim(;n::Int=100, staff::Int=6,
     tstart::DateTime=floor(now(),Day), 
@@ -681,7 +670,7 @@ function multisim(;n::Int=100, staff::Int=6,
             y1::Array{Int64,1} = map(v -> Dates.value(v[2]), m.Qtime_Entrance)
             for hr = 11:13
                 for mn = 0:59
-                    index = (hr-11)*60 + mn-30 + 1 #geen data voor 11:30 of na 13:30dus komen de lengtes overeen
+                    index = (hr-11)*60 + mn-30 + 1 #geen data voor 11:30 of na 13:30 dus komen de lengtes overeen
                     for iter = 1:length(x1) 
                         if Dates.value(Hour(x1[iter])) == hr && Dates.value(Minute(x1[iter])) == mn
                             TotWTpmn[1,index] += y1[iter]
@@ -761,12 +750,12 @@ function multisim(;n::Int=100, staff::Int=6,
 
     # generate a nice illustration
     @info "Making Mean Waiting Time figure"
-    p = plot(daterange, MWT[1,:]/1000, linetype=:steppost, label="MWT_Entrance")
-        plot!(daterange, MWT[2,:]/1000, linetype=:steppost, label="MWT_Utensils 1")
-        plot!(daterange, MWT[3,:]/1000, linetype=:steppost, label="MWT_Main 1")
-        plot!(daterange, MWT[4,:]/1000, linetype=:steppost, label="MWT_Side 1")
-        plot!(daterange, MWT[5,:]/1000, linetype=:steppost, label="MWT_Des 1")
-        plot!(daterange, MWT[6,:]/1000, linetype=:steppost, label="MWT_Cash 1")
+    p = plot(daterange, MWT[1,:]/1000, linestyle=:solid, label="MWT_Entrance")
+        plot!(daterange, MWT[2,:]/1000, linestyle=:solid, label="MWT_Utensils 1")
+        plot!(daterange, MWT[3,:]/1000, linestyle=:solid, label="MWT_Main 1")
+        plot!(daterange, MWT[4,:]/1000, linestyle=:solid, label="MWT_Side 1")
+        plot!(daterange, MWT[5,:]/1000, linestyle=:solid, label="MWT_Des 1")
+        plot!(daterange, MWT[6,:]/1000, linestyle=:solid, label="MWT_Cash 1")
 
         xticks!(datexticks, datexticklabels,rotation=0)
         xlims!(Dates.value(tstart_data),Dates.value(tstop_data))
@@ -776,4 +765,4 @@ function multisim(;n::Int=100, staff::Int=6,
         savefig(p,"./Mess_Images/MWT.png")
 end
 
-multisim()
+#multisim()
