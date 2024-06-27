@@ -9,5 +9,3 @@ using Plots              # for figures
 using ConcurrentSim      # for DES
 using ResumableFunctions # for resumable functions
 using Statistics         # for statistics
-
-rand(Truncated(Normal(0,1),0.5,1))
