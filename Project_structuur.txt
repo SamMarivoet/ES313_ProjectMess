@@ -58,9 +58,8 @@ TO DO
 
 Te testen
 	- pathing
-		- random (50/50) vs 'slim' (kortste rij) vs begeleid (van Side2→cash1/cash2; side1→cash1)
+		- random (50/50) vs 'slim' (kortste rij) vs begeleid (van Side2→cash1/cash2; side1→cash1) → total wait time
 	- Side volgorde
-	- 2 vs 3 kassa's 
-	- vanaf welke grootte impuls wachttijden te groot 
-	- Position deserts
-	!channel times aftrekken bij evaluatie
+	- 2 vs 3 kassa's → total wait time
+	- vanaf welke grootte impuls wachttijden te groot → total wait time?
+	- Position deserts → total wait time
